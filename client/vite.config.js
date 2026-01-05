@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/eneba-clone/",
+  base: "/eneba-clonetest/",
   plugins: [react()],
 });
 
