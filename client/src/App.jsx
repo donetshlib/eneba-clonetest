@@ -105,7 +105,7 @@ export default function App() {
       <div className="innerpage">
         <div className="topbar">
           <div className="brand">
-            <img className="brandLogo" src="/eneba-logo.png" alt="Eneba logo" />
+            <img className="brandLogo" src="./eneba-logo.png" alt="Eneba logo" />
             <span>eneba</span>
           </div>
 
