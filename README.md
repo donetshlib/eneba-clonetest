@@ -47,8 +47,4 @@ The front end reads it via `fetch()` (no server or database).
 
 ## Run locally
 
-### Frontend
-```bash
-cd client
-npm install
-npm run dev
+see https://github.com/donetshlib/eneba-clone
