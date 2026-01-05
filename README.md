@@ -1,46 +1,54 @@
-````md
-# Eneba-like Game Listing
+# Eneba Clone (Static Demo)
 
-Small project: Eneba-style game listing UI (React + Vite) with a Node/Express backend and SQLite database.
+A mini-clone of the Eneba interface: game list, search/filters, cards, and a separate game page.
+The project is built as a **static site** and is deployed on **GitHub Pages**.
+
+## Live Demo
+👉 https://donetshlib.github.io/eneba-clonetest/
+
+---
 
 ## Features
-- Responsive grid of game cards
-- Search by title (debounce)
-- Loading skeleton + no results
-- Hover effects + clickable cards
-- Game details page: `/game.html?id=...`
-- Price sorting (Default / Price ↑ / Price ↓)
+- Game catalog (cards)
+- Search by name
+- Sorting/filtering (if enabled in the UI)
+- Game page: `game.html?id=<id>`
+- Ready for GitHub Pages (`BASE_URL` is taken into account)
+
+---
 
 ## Tech Stack
-- Frontend: React + Vite
-- Backend: Node.js + Express
-- Database: SQLite
+- React + Vite
+- HTML/CSS/JS
+- Data: static JSON (`client/public/games.json`)
+- Deploy: GitHub Actions → GitHub Pages
 
-## How to run
+---
 
-### Backend (port 5174)
-Terminal 1: cd server → npm install → npm run seed (optional) – fill DB with sample games → npm start
+## Data source
+Data is taken from the file:
 
-### Frontend (port 5173)
-Terminal 2: cd client → npm install → npm run dev
+`client/public/games.json`
 
-Check:
+The front end reads it via `fetch()` (no server or database).
 
-* http://localhost:5174/health
-* http://localhost:5174/list
-* http://localhost:5173/
+---
 
-## Pages
+## Project structure (important)
+- `client/` — frontend (Vite + React)
+- `client/public/` — static files, accessible via URL on Pages
+- `games.json`
+- `game.html`
+- `eneba-logo.png`
+- `game-placeholder.png`
+- `.github/workflows/pages.yml` — deploy to GitHub Pages
 
-* `/` — list + search + sort
-* `/game.html?id=1` — details page
+---
 
-## API
+## Run locally
 
-* `GET /health`
-* `GET /list?search=...`
-* `GET /api/games/:id`
-
-## AI usage
-
-Prompts used are documented in `AI_PROMPT_HISTORY.md`.
+### Frontend
+```bash
+cd client
+npm install
+npm run dev
