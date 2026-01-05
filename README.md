@@ -11,7 +11,7 @@ The project is built as a **static site** and is deployed on **GitHub Pages**.
 ## Features
 - Game catalog (cards)
 - Search by name
-- Sorting/filtering (if enabled in the UI)
+- Sorting
 - Game page: `game.html?id=<id>`
 - Ready for GitHub Pages (`BASE_URL` is taken into account)
 
