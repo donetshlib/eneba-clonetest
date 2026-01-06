@@ -1,190 +1,131 @@
-# AI Prompt History
+## AI Prompt History (Publishing the project for free)
 
-Here is what I asked AI(ChatGPT and Claude) during this project and what I used from it.
-I didn’t log every small prompt, only the important ones that changed the implementation.
-Project: Eneba-like game listing (React + Vite) + Node/Express + SQLite.
-
-I used AI like a helper: to get examples, fix bugs, and understand what I’m doing.
-Then I edited and adjusted everything myself to match my project.
+This part covers the AI prompts I used when I wanted to publish the project **for free** so it can be opened by a link, and what changes were needed to make it work on **GitHub Pages**.
 
 ---
 
-## 1) Make the UI look like Eneba (basic layout)
+### 1) “How can I publish it for free and open by a link?”
 
 **Prompt**
-- "Help me recreate an Eneba-like UI layout with a purple background, topbar, search input, and a responsive grid of game cards."
+
+* “How can I publish my project for free so anyone can open it by a link?”
+
+**What I used / Decision**
+
+* Chose **GitHub Pages** as the simplest free option for a frontend demo.
+* Important limitation: Pages is a **static hosting** platform → backend (Node/Express/SQLite) won’t run there.
+* Solution for demo: switch to **static data** (JSON) instead of a database/API.
+
+---
+
+### 2) “How do I deploy to GitHub Pages and what do I need to change?”
+
+**Prompt**
+
+* “How do I deploy this to GitHub Pages? What will I have to change in my code?”
+
+**What I changed**
+
+* Added correct **Vite base path** for Pages:
+
+  * `vite.config.js → base: "/<repo-name>/"`.
+* Updated links and assets so they work under `/repo-name/`:
+
+  * use `import.meta.env.BASE_URL` in React for URLs.
+* Replaced backend usage with static JSON:
+
+  * data source: `client/public/games.json`
+  * fetch that file from frontend.
+
+---
+
+### 3) Deploy setup: GitHub Actions workflow for Pages
+
+**Prompt**
+
+* “Give me a working GitHub Actions workflow to build Vite and deploy to GitHub Pages.”
 
 **What I used**
-- CSS variables for colors, border, muted text.
-- Layout: topbar + search + grid with cards.
+
+* Created `.github/workflows/pages.yml`:
+
+  * install deps in `client/`
+  * `npm run build`
+  * upload `client/dist`
+  * deploy via `actions/deploy-pages@v4`
 
 ---
 
-## 2) Make cards look nice (image, badges, price block)
+### 4) Debug: deploy fails because of branch/environment rules
 
 **Prompt**
-- "How should I structure a game card component (cover image, platform/region badges, discount, cashback, price)?"
+
+* “My workflow runs but deploy fails / says branch is not allowed.”
 
 **What I used**
-- `GameCard` component structure
-- badges overlay on image
-- price / cashback / discount display
+
+* Fixed deployment rules by deploying from the correct branch (usually `main`).
+* If a branch is blocked by Pages environment protection → move work into a new repo or merge to allowed branch.
 
 ---
 
-## 3) Click on a card (whole card is a link)
+### 5) Fix routing: card links must work on Pages
 
 **Prompt**
-- "How to make the whole card clickable, not just text?"
+
+* “My cards should open a separate game page by id (`game.html?id=...`) and it must work on Pages.”
 
 **What I used**
-- Wrap card in `<a class="cardLink" href="/game.html?id=...">`
-- Keep styling so link doesn’t look like default blue underline
+
+* Build link using base URL:
+
+  * `const base = import.meta.env.BASE_URL;`
+  * `const href = \`${base}game.html?id=${g.id}`;`
+* Wrap the whole card with `<a className="cardLink" href={href}>`.
 
 ---
 
-## 4) Hover effect (like real store cards)
+### 6) Fix images: placeholders and assets must work under `eneba-clonetest`
 
 **Prompt**
-- "Add CSS smooth hover effects: card goes up a bit, shadow, and image zoom."
+
+* “Images work locally but break on Pages. How do I make fallback and static assets work?”
 
 **What I used**
-- CSS transitions for transform + shadow
-- image scale on hover
+
+* Use base URL for placeholder:
+
+  * `const placeholder = \`${base}game-placeholder.png`;`
+* In `onError`, replace image source with `placeholder`.
 
 ---
 
-## 5) Search without lag (debounce)
+### 7) Convert `game.html` to static mode (no API)
 
 **Prompt**
-- "Show a simple React hook for debounced search and fetch data only after user stops typing."
+
+* “Make the details page work without backend: read id from URL and load info from `games.json`.”
 
 **What I used**
-- `useDebouncedValue()`
-- fetch inside `useEffect` using the debounced value
+
+* Read id:
+
+  * `new URLSearchParams(location.search).get("id")`
+* Load data:
+
+  * `fetch("./games.json")` (relative path works on Pages)
+* Find item in JSON and render it.
+* Add fallback states:
+
+  * “No id provided” / “Game not found”.
 
 ---
 
-## 6) Loading skeleton (so page doesn’t feel empty)
+### Notes (difference vs backend version)
 
-**Prompt**
-- "Give me a simple skeleton card with shimmer animation while loading."
+* Original version: **Express + SQLite + endpoints**
+* Pages version: **Static demo**
 
-**What I used**
-- `SkeletonCard`
-- shimmer CSS animation
-
----
-
-## 7) “No results” state
-
-**Prompt**
-- "How to show a nice message when nothing is found?"
-
-**What I used**
-- `NoResults` component
-- show it only when not loading + not error + items length is 0
-
----
-
-## 8) Fix broken images (fallback)
-
-**Prompt**
-- "If an image URL fails, how do I show a placeholder instead?"
-
-**What I used**
-- `onError` handler on `<img>`
-- fallback to `/game-placeholder.png`
-
----
-
-## 9) Sorting by price (asc/desc) using one select
-
-**Prompt**
-- "Implement sorting in React using a single <select> (default / price asc / price desc) without changing backend."
-
-**Applied**
-- `sort` state
-- `sortedItems = useMemo(...)` to sort a copy of items
-- Default = show items as backend returned them
-
----
-
-## 10) Mistake fix: code placed inside JSX breaks everything
-
-**Prompt**
-- "I added const sortedItems inside JSX by accident, why is it not working and where should it go?"
-
-**Applied**
-- Moved `const sortedItems = useMemo(...)` ABOVE the return
-- JSX must contain only JSX, not random JS declarations
-
----
-
-## 11) Game details page (game.html) from id param
-
-**Prompt**
-- "How do I create a simple game details page (static HTML) that reads id from query params and fetches data from backend?"
-
-**Applied**
-- `const id = new URLSearchParams(location.search).get("id")`
-- render title/price/platform/region/cashback/discount
-- fallback when id is missing
-
----
-
-## 12) Backend endpoint for single game by id
-
-**Prompt**
-- "Add Express endpoint GET /api/games/:id that returns one game from SQLite."
-
-**Applied**
-- `db.get("SELECT * FROM games WHERE id = ?", [id])`
-- 400 for bad id, 404 when not found
-
----
-
-## 13) Debug: details page always says “Not found”
-
-**Prompt**
-- "List page works, but game.html always shows Not found. Why?"
-
-**Applied**
-- Real issue: frontend runs on `localhost:5173`, backend on `localhost:5174`
-- Fix: in game.html use `API_BASE = "http://localhost:5174"`
-- fetch like: `fetch(`${API_BASE}/api/games/${id}`)`
-
----
-
-## 14) Small backend mistakes that break route
-
-**Prompt**
-- "My /api/games/:id route doesn’t work. What should I check?"
-
-**Applied**
-- Don’t duplicate the same route twice
-- Make sure `const db = await getDb()` exists inside the handler
-- Close DB when needed (depending on db wrapper)
-
----
-
-## 15) General cleanup / “make it look real enough”
-
-**Prompt**
-- "Help me polish the UI a bit (spacing, buttons, small visual details) so it looks closer to Eneba."
-
-**Applied**
-- small button/icon styling
-- spacing tweaks, max-width, nicer paddings
-
----
-
-## Summary (how AI helped)
-
-AI helped me with things I would probably get stuck on as a beginner:
-- React patterns: debounce, loading states, useMemo sorting
-- CSS polish: hover effects, skeleton shimmer
-- Backend + SQLite: simple search queries + single item endpoint
-- Debugging ports (5173 vs 5174) and why fetch returns Not found
-
-Final integration and testing was done by me.
+  * data from JSON
+  * deploy on GitHub Pages
+  * no server/database
